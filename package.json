@@ -2,9 +2,25 @@
   "name": "devtrace",
   "version": "0.1.0",
   "type": "module",
-  "description": "Development tools for tracing and debugging",
+  "description": "Enhanced development toolkit for tracing, debugging, and monitoring JavaScript/TypeScript applications with detailed stack traces and network monitoring",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "keywords": ["debugging", "tracing", "stack-trace", "console", "development", "monitoring", "logging"],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -15,7 +31,10 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "prepublishOnly": "npm run clean && npm run lint && npm run build",
+    "publish:npm": "npm publish",
+    "publish:dry": "npm publish --dry-run"
   },
   "devDependencies": {
     "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
