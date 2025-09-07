@@ -1,0 +1,46 @@
+{
+  "name": "devtrace",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Development tools for tracing and debugging",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint src/"
+  },
+  "devDependencies": {
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
+    "@eslint/js": "^9.23.0",
+    "@ton-ai-core/eslint-plugin-suggest-members": "^1.6.2",
+    "@types/node": "^20.12.11",
+    "eslint": "^9.23.0",
+    "eslint-plugin-jest": "^29.0.1",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^15.2.0",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.28.0"
+  },
+  "dependencies": {
+    "error-stack-parser-es": "^0.1.4",
+    "stacktrace-js": "^2.0.2"
+  },
+  "peerDependencies": {
+    "zone.js": ">=0.11.0"
+  },
+  "peerDependenciesMeta": {
+    "zone.js": {
+      "optional": true
+    }
+  }
+}
