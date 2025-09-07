@@ -168,8 +168,30 @@ DevTrace includes a Babel plugin that automatically instruments your code with t
 module.exports = {
   plugins: [
     // ... other plugins
-    './node_modules/devtrace/babel-plugin-function-frames.cjs'
+    '@ton-ai-core/devtrace/babel-plugin'
   ]
+};
+```
+
+Or with Vite:
+
+```javascript
+// vite.config.js
+import viteBabel from 'vite-plugin-babel';
+
+export default {
+  plugins: [
+    viteBabel({
+      filter: (id) => id.includes('/src/') && !id.includes('/node_modules/'),
+      babelConfig: {
+        plugins: [
+          ["@babel/plugin-syntax-typescript", { isTSX: true }],
+          "@babel/plugin-syntax-jsx", 
+          "@ton-ai-core/devtrace/babel-plugin"
+        ],
+      },
+    }),
+  ],
 };
 ```
 
