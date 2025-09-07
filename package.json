@@ -54,7 +54,6 @@
     "@eslint/js": "^9.23.0",
     "@ton-ai-core/eslint-plugin-suggest-members": "^1.6.2",
     "@types/babel__core": "^7.20.0",
-    "@types/babel__types": "^7.20.0",
     "@types/node": "^20.12.11",
     "eslint": "^9.23.0",
     "eslint-plugin-jest": "^29.0.1",
