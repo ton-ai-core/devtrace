@@ -1,5 +1,66 @@
 # DevTrace
 
+Add logs:
+```
+📞 CALL STACK
+  1. init.ts:20:8 → init
+        19         initSDK();
+      > 20         // Add Eruda if needed.
+        21         if (options.eruda) {
+     Vars: {"options":{"debug":true,"eruda":false,"mockForMacOS":false}}
+  2. @ton-ai-core_devtrace.js?v=47b4a8f4:388:24 → installStackLogger/console[m]
+        387     console[m] = (...args) => {
+      > 388       const captured = new Error();
+        389       const dataSnap = __TRACE.stack();
+
+Message Log: testvalue 
+Vars: 
+Object { options: {…} }
+​
+options: Object { debug: true, eruda: false, mockForMacOS: false }
+​​
+debug: true
+​​
+eruda: false
+​​
+mockForMacOS: false
+​​
+<prototype>: Object { … }
+​
+<prototype>: Object { … }
+​​
+__defineGetter__: function __defineGetter__()
+​​
+__defineSetter__: function __defineSetter__()
+​​
+__lookupGetter__: function __lookupGetter__()
+​​
+__lookupSetter__: function __lookupSetter__()
+​​
+__proto__: 
+​​
+constructor: function Object()
+​​
+hasOwnProperty: function hasOwnProperty()
+​​
+isPrototypeOf: function isPrototypeOf()
+​​
+propertyIsEnumerable: function propertyIsEnumerable()
+​​
+toLocaleString: function toLocaleString()
+​​
+toString: function toString()
+​​
+valueOf: function valueOf()
+​​
+<get __proto__()>: function __proto__()
+​​
+<set __proto__()>: function __proto__()
+stack-logger.js:165:32
+
+```
+
+
 A comprehensive development toolkit for tracing, debugging, and monitoring JavaScript/TypeScript applications in the browser. DevTrace provides enhanced console logging with detailed stack traces, network monitoring, and variable inspection capabilities.
 
 ## Features
