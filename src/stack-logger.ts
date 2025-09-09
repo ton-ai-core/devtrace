@@ -76,11 +76,11 @@ async function getSnippet(file?: string, line?: number, contextLines = 1): Promi
 
 export function installStackLogger({
   prefix = '📞',
-  skip = 2,
-  limit = 1,
+  skip = 1,
+  limit = 3,
   tail = false,
   mapSources = true,
-  snippet = 0,
+  snippet = 2,
   onlyApp = false,
   preferApp = true,
   appPattern = /(?:^|\/)src\//,
@@ -101,17 +101,23 @@ export function installStackLogger({
       const dataSnap = __TRACE.stack();
       void (async (): Promise<void> => {
         const frames = await mapFramesToTS(mapSources, captured);
-        const internalRe = /stack-logger\.ts|dev-instrumentation\.ts/;
+        const internalRe = /stack-logger\.ts|dev-instrumentation\.ts|@ton-ai-core_devtrace/;
         const filtered = frames.filter(f => f.file && !internalRe.test(String(f.file)));
+        
+        // Debug: show what we got
+        console.debug('Raw frames:', frames.slice(0, 5).map(f => ({ file: f.file, line: f.line, name: f.name })));
+        console.debug('Filtered frames:', filtered.slice(0, 3).map(f => ({ file: f.file, line: f.line, name: f.name })));
         // Order root -> call-site so the last is always the call site
         const orderedBase = ascending ? filtered.slice().reverse() : filtered.slice();
         const total = orderedBase.length;
         const effLimit = (limit && limit > 0) ? limit : total;
+        // Find the actual call site - first frame that's not internal
+        const callSite = orderedBase.find(f => f.file && !internalRe.test(String(f.file))) || orderedBase[0];
+        
         const safeSkip = Math.max(0, Math.min(skip, Math.max(0, total - 1)));
-        const effectiveEnd = Math.max(1, total - safeSkip); // end is exclusive; last element is call-site
+        const effectiveEnd = Math.max(1, total - safeSkip);
         const start = Math.max(0, effectiveEnd - effLimit);
         const windowSlice = orderedBase.slice(start, effectiveEnd);
-        const callSite = windowSlice[windowSlice.length - 1];
 
         // Merge function-frames (with args) + call-site (real location)
         const dataFrames = dataSnap as unknown as Array<{ file?: string; line?: number; col?: number; fn?: string; args?: Record<string, unknown> }>;
