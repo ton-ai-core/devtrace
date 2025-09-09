@@ -111,8 +111,8 @@ export function installStackLogger({
         const orderedBase = ascending ? filtered.slice().reverse() : filtered.slice();
         const total = orderedBase.length;
         const effLimit = (limit && limit > 0) ? limit : total;
-        // Find the actual call site - first frame that's not internal
-        const callSite = orderedBase.find(f => f.file && !internalRe.test(String(f.file))) || orderedBase[0];
+        // Find the actual call site - the topmost (last) frame that's not internal
+        const callSite = orderedBase.filter(f => f.file && !internalRe.test(String(f.file))).pop() || orderedBase[orderedBase.length - 1];
         
         const safeSkip = Math.max(0, Math.min(skip, Math.max(0, total - 1)));
         const effectiveEnd = Math.max(1, total - safeSkip);
@@ -139,7 +139,11 @@ export function installStackLogger({
           }
           priorFrames = prior;
         }
-        const combined = callSite ? [...priorFrames, callSite] : priorFrames;
+        // Ensure callSite is not already in priorFrames to avoid duplicates
+        const priorWithoutCallSite = callSite ? priorFrames.filter(pf => 
+          !(pf.file === callSite.file && pf.line === callSite.line && pf.col === callSite.col)
+        ) : priorFrames;
+        const combined = callSite ? [...priorWithoutCallSite, callSite] : priorFrames;
 
         const parts: string[] = [];
         const debugVars: Record<string, unknown>[] = [];
