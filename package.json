@@ -1,6 +1,6 @@
 {
   "name": "@ton-ai-core/devtrace",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "Enhanced development toolkit for tracing, debugging, and monitoring JavaScript/TypeScript applications with detailed stack traces and network monitoring",
   "main": "dist/index.js",
@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",
-    "@babel/plugin-syntax-jsx": "^7.27.1", 
+    "@babel/plugin-syntax-jsx": "^7.27.1",
     "@babel/plugin-syntax-typescript": "^7.27.1",
     "@babel/types": "^7.28.4",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
