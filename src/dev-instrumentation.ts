@@ -7,6 +7,25 @@ type Fn<T extends unknown[] = unknown[], R = void> = (...args: T) => R;
 
 const fmtMs = (ms: number): string => `${ms.toFixed(0)}ms`;
 
+function truncateObjectForLog(obj: unknown, maxSize = 1024 * 10): unknown {
+  try {
+    const serialized = JSON.stringify(obj);
+    if (serialized.length <= maxSize) {
+      return obj;
+    }
+    if (typeof obj === 'object' && obj !== null) {
+      return { 
+        __truncated: `Object too large (${serialized.length} chars), showing keys only`,
+        keys: Object.keys(obj as Record<string, unknown>),
+        sample: serialized.substring(0, 500) + '...'
+      };
+    }
+    return `[Data truncated: ${serialized.length} chars]`;
+  } catch (error) {
+    return `[Object too complex to serialize: ${error}]`;
+  }
+}
+
 function installFetchTracer(): void {
   if (!('fetch' in window)) return;
   const origFetch = window.fetch.bind(window);
@@ -25,11 +44,13 @@ function installFetchTracer(): void {
       const res = await origFetch(input as RequestInfo, init);
       const took = performance.now() - started;
       // Keep objects inspectable by passing as separate args
-      console.info('HTTP fetch', { method, url, duration: fmtMs(took), status: res.status, ok: res.ok, bodySample });
+      const logData = truncateObjectForLog({ method, url, duration: fmtMs(took), status: res.status, ok: res.ok, bodySample });
+      console.info('HTTP fetch', logData);
       return res;
     } catch (e) {
       const took = performance.now() - started;
-      console.error('HTTP fetch failed', { duration: fmtMs(took), error: e });
+      const errorData = truncateObjectForLog({ duration: fmtMs(took), error: e });
+      console.error('HTTP fetch failed', errorData);
       throw e;
     }
   }) as typeof window.fetch;
@@ -57,7 +78,8 @@ function installXHRTracer(): void {
       const started = startCache.get(this) ?? performance.now();
       const took = performance.now() - started;
       const bodySample = typeof body === 'string' ? body.slice(0, 512) : undefined;
-      console.info('HTTP xhr', { method, url, duration: fmtMs(took), status: this.status, ok: this.status >= 200 && this.status < 300, bodySample });
+      const xhrLogData = truncateObjectForLog({ method, url, duration: fmtMs(took), status: this.status, ok: this.status >= 200 && this.status < 300, bodySample });
+      console.info('HTTP xhr', xhrLogData);
     }, { once: true });
     XMLHttpRequest.prototype.send.call(this, body ?? null);
   } as typeof X.send;
@@ -67,7 +89,8 @@ function installMessageTracer(): void {
   // Outgoing
   const origPost = window.postMessage.bind(window) as Fn<[unknown, string, Transferable[]?], void>;
   window.postMessage = ((message: unknown, targetOrigin: string, transfer?: Transferable[]): void => {
-    console.info('postMessage →', { targetOrigin, message });
+    const postMessageData = truncateObjectForLog({ targetOrigin, message });
+    console.info('postMessage →', postMessageData);
     origPost(message, targetOrigin, transfer);
   }) as typeof window.postMessage;
 
@@ -76,7 +99,8 @@ function installMessageTracer(): void {
     try {
       const origin = ev.origin;
       const data: unknown = ev.data;
-      console.info('message ←', { origin, data });
+      const messageData = truncateObjectForLog({ origin, data });
+      console.info('message ←', messageData);
     } catch {
       console.info('message ←');
     }

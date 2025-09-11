@@ -24,6 +24,31 @@ type MappedFrame = { file?: string; line?: number; col?: number; name?: string }
 const srcCache = new Map<string, string[]>();
 const stripQuery = (u: string): string => u.split('?')[0];
 
+function truncateForLog(obj: unknown, maxSize = 1024 * 10): string {
+  try {
+    const serialized = JSON.stringify(obj);
+    if (serialized.length <= maxSize) {
+      return serialized;
+    }
+    return `${serialized.substring(0, maxSize)}... (truncated ${serialized.length - maxSize} chars)`;
+  } catch (error) {
+    return `[Object too complex to serialize: ${error}]`;
+  }
+}
+
+function truncateVarsForLog(vars: Record<string, unknown>[], maxSize = 1024 * 10): Record<string, unknown>[] {
+  return vars.map(varObj => {
+    const serialized = JSON.stringify(varObj);
+    if (serialized.length <= maxSize) {
+      return varObj;
+    }
+    return { 
+      __truncated: `Object too large (${serialized.length} chars), showing keys only`,
+      keys: Object.keys(varObj)
+    };
+  });
+}
+
 // Re-export dbg for convenience (optional import in app code)
 export const dbg = _dbg;
 
@@ -180,7 +205,7 @@ export function installStackLogger({
             parts.push(header);
           }
           if (f.args && Object.keys(f.args).length) {
-            try { parts.push(`     Vars: ${JSON.stringify(f.args)}`); } catch { /* noop */ }
+            try { parts.push(`     Vars: ${truncateForLog(f.args)}`); } catch { /* noop */ }
           }
         }
 
@@ -196,13 +221,15 @@ export function installStackLogger({
           const rest = (plainArgs).slice(1) as [];
           // Append debug vars after original arg list to keep % tokens mapping
           if (debugVars.length) {
-            orig[m].call(console, first, ...rest, '\nVars:', ...debugVars as []);
+            const truncatedVars = truncateVarsForLog(debugVars);
+            orig[m].call(console, first, ...rest, '\nVars:', ...truncatedVars as []);
           } else {
             orig[m].call(console, first, ...rest);
           }
         } else {
           if (debugVars.length) {
-            orig[m].call(console, `${head}\n\nMessage Log:`, ...plainArgs as [], '\nVars:', ...debugVars as []);
+            const truncatedVars = truncateVarsForLog(debugVars);
+            orig[m].call(console, `${head}\n\nMessage Log:`, ...plainArgs as [], '\nVars:', ...truncatedVars as []);
           } else {
             orig[m].call(console, `${head}\n\nMessage Log:`, ...plainArgs as []);
           }
