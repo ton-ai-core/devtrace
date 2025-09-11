@@ -22,7 +22,7 @@ function truncateObjectForLog(obj: unknown, maxSize = 1024 * 10): unknown {
     }
     return `[Data truncated: ${serialized.length} chars]`;
   } catch (error) {
-    return `[Object too complex to serialize: ${error}]`;
+    return `[Object too complex to serialize: ${String(error)}]`;
   }
 }
 
