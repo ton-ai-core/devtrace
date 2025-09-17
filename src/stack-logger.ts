@@ -113,9 +113,11 @@ export function installStackLogger({
         const internalRe = /stack-logger\.ts|dev-instrumentation\.ts|@ton-ai-core_devtrace/;
         const filtered = frames.filter(f => f.file && !internalRe.test(String(f.file)));
         
-        // Debug: show what we got
-        console.debug('Raw frames:', frames.slice(0, 5).map(f => ({ file: f.file, line: f.line, name: f.name })));
-        console.debug('Filtered frames:', filtered.slice(0, 3).map(f => ({ file: f.file, line: f.line, name: f.name })));
+        // Debug: show what we got (only if debug enabled)
+        if (window.__devtraceEnableStackDebug__) {
+          console.debug('Raw frames:', frames.slice(0, 5).map(f => ({ file: f.file, line: f.line, name: f.name })));
+          console.debug('Filtered frames:', filtered.slice(0, 3).map(f => ({ file: f.file, line: f.line, name: f.name })));
+        }
         // Order root -> call-site so the last is always the call site
         const orderedBase = ascending ? filtered.slice().reverse() : filtered.slice();
         const total = orderedBase.length;

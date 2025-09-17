@@ -6,5 +6,6 @@ declare global {
     __devtraceEnableNetworkLogging__?: boolean;
     __devtraceEnableTraceLogging__?: boolean;
     __devtraceEnableMessageLogging__?: boolean;
+    __devtraceEnableStackDebug__?: boolean;
   }
 }
