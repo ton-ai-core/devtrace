@@ -1,5 +1,6 @@
 import { parse } from 'error-stack-parser-es/lite';
 import { isDebugVars, dbg as _dbg } from './dbg';
+import { sanitizeForLog, stringifyForLog, DEFAULT_VAR_STRING_LIMIT } from './vars-limit';
 import { __TRACE } from './trace-context';
 
 const base = (p?: string): string => (p ? p.split(/[\\/]/).pop()! : '<anonymous>');
@@ -24,29 +25,12 @@ type MappedFrame = { file?: string; line?: number; col?: number; name?: string }
 const srcCache = new Map<string, string[]>();
 const stripQuery = (u: string): string => u.split('?')[0];
 
-function truncateForLog(obj: unknown, maxSize = 1024 * 10): string {
-  try {
-    const serialized = JSON.stringify(obj);
-    if (serialized.length <= maxSize) {
-      return serialized;
-    }
-    return `${serialized.substring(0, maxSize)}... (truncated ${serialized.length - maxSize} chars)`;
-  } catch (error) {
-    return `[Object too complex to serialize: ${String(error)}]`;
-  }
+function truncateForLog(obj: unknown, maxSize = DEFAULT_VAR_STRING_LIMIT): string {
+  return stringifyForLog(obj, maxSize);
 }
 
-function truncateVarsForLog(vars: Record<string, unknown>[], maxSize = 1024 * 10): Record<string, unknown>[] {
-  return vars.map(varObj => {
-    const serialized = JSON.stringify(varObj);
-    if (serialized.length <= maxSize) {
-      return varObj;
-    }
-    return { 
-      __truncated: `Object too large (${serialized.length} chars), showing keys only`,
-      keys: Object.keys(varObj)
-    };
-  });
+function truncateVarsForLog(vars: Record<string, unknown>[], limit = DEFAULT_VAR_STRING_LIMIT): Record<string, unknown>[] {
+  return vars.map(varObj => sanitizeForLog(varObj, limit)) as Record<string, unknown>[];
 }
 
 // Re-export dbg for convenience (optional import in app code)

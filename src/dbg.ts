@@ -1,9 +1,11 @@
+import { sanitizeForLog } from './vars-limit';
+
 export const DBG_VARS = Symbol('stackLogger.vars');
 
 export type DebugVarsObject = { [DBG_VARS]: true; vars: Record<string, unknown> };
 
 export function dbg(vars: Record<string, unknown>): DebugVarsObject {
-  return { [DBG_VARS]: true, vars } as DebugVarsObject;
+  return { [DBG_VARS]: true, vars: sanitizeForLog(vars) as Record<string, unknown> } as DebugVarsObject;
 }
 
 export function isDebugVars(x: unknown): x is DebugVarsObject {
