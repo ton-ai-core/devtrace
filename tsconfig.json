@@ -16,6 +16,6 @@
     "noEmit": false,
     "sourceMap": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "babel-plugin-function-frames.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

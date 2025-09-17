@@ -27,6 +27,7 @@
   "files": [
     "dist/",
     "babel-plugin-function-frames.cjs",
+    "babel-plugin-function-frames.d.ts",
     "README.md",
     "LICENSE"
   ],
