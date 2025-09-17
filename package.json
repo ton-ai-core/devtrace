@@ -43,7 +43,7 @@
     "clean": "rm -rf dist",
     "lint": "eslint src/",
     "prepublishOnly": "npm run clean && npm run lint && npm run build",
-    "publish:npm": "npm run prepublishOnly && npm publish --access public"
+    "publish:npm": "npm run prepublishOnly && npm version patch && npm publish --access public"
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",
