@@ -1,6 +1,6 @@
 {
   "name": "@ton-ai-core/devtrace",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "type": "module",
   "description": "Enhanced development toolkit for tracing, debugging, and monitoring JavaScript/TypeScript applications with detailed stack traces and network monitoring",
   "main": "dist/index.js",
