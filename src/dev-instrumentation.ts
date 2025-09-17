@@ -44,13 +44,17 @@ function installFetchTracer(): void {
       const res = await origFetch(input as RequestInfo, init);
       const took = performance.now() - started;
       // Keep objects inspectable by passing as separate args
-      const logData = truncateObjectForLog({ method, url, duration: fmtMs(took), status: res.status, ok: res.ok, bodySample });
-      console.info('HTTP fetch', logData);
+      if (window.__devtraceEnableNetworkLogging__) {
+        const logData = truncateObjectForLog({ method, url, duration: fmtMs(took), status: res.status, ok: res.ok, bodySample });
+        console.info('HTTP fetch', logData);
+      }
       return res;
     } catch (e) {
       const took = performance.now() - started;
-      const errorData = truncateObjectForLog({ duration: fmtMs(took), error: e });
-      console.error('HTTP fetch failed', errorData);
+      if (window.__devtraceEnableNetworkLogging__) {
+        const errorData = truncateObjectForLog({ duration: fmtMs(took), error: e });
+        console.error('HTTP fetch failed', errorData);
+      }
       throw e;
     }
   }) as typeof window.fetch;
@@ -77,9 +81,11 @@ function installXHRTracer(): void {
       const url = urlCache.get(this) ?? '';
       const started = startCache.get(this) ?? performance.now();
       const took = performance.now() - started;
-      const bodySample = typeof body === 'string' ? body.slice(0, 512) : undefined;
-      const xhrLogData = truncateObjectForLog({ method, url, duration: fmtMs(took), status: this.status, ok: this.status >= 200 && this.status < 300, bodySample });
-      console.info('HTTP xhr', xhrLogData);
+      if (window.__devtraceEnableNetworkLogging__) {
+        const bodySample = typeof body === 'string' ? body.slice(0, 512) : undefined;
+        const xhrLogData = truncateObjectForLog({ method, url, duration: fmtMs(took), status: this.status, ok: this.status >= 200 && this.status < 300, bodySample });
+        console.info('HTTP xhr', xhrLogData);
+      }
     }, { once: true });
     XMLHttpRequest.prototype.send.call(this, body ?? null);
   } as typeof X.send;
@@ -89,20 +95,24 @@ function installMessageTracer(): void {
   // Outgoing
   const origPost = window.postMessage.bind(window) as Fn<[unknown, string, Transferable[]?], void>;
   window.postMessage = ((message: unknown, targetOrigin: string, transfer?: Transferable[]): void => {
-    const postMessageData = truncateObjectForLog({ targetOrigin, message });
-    console.info('postMessage →', postMessageData);
+    if (window.__devtraceEnableMessageLogging__) {
+      const postMessageData = truncateObjectForLog({ targetOrigin, message });
+      console.info('postMessage →', postMessageData);
+    }
     origPost(message, targetOrigin, transfer);
   }) as typeof window.postMessage;
 
   // Incoming
   window.addEventListener('message', (ev: MessageEvent) => {
-    try {
-      const origin = ev.origin;
-      const data: unknown = ev.data;
-      const messageData = truncateObjectForLog({ origin, data });
-      console.info('message ←', messageData);
-    } catch {
-      console.info('message ←');
+    if (window.__devtraceEnableMessageLogging__) {
+      try {
+        const origin = ev.origin;
+        const data: unknown = ev.data;
+        const messageData = truncateObjectForLog({ origin, data });
+        console.info('message ←', messageData);
+      } catch {
+        console.info('message ←');
+      }
     }
   });
 }
