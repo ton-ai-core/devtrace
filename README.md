@@ -4,21 +4,20 @@ Example console output:
 
 ```log
 📞 CALL STACK
-  1. init.ts:20:8 → init
-        19         initSDK();
-      > 20         // Add Eruda if needed.
-        21         if (options.eruda) {
-     Vars: {"options":{"debug":true,"eruda":false,"mockForMacOS":false}}
-  2. @ton-ai-core_devtrace.js?v=47b4a8f4:388:24 → installStackLogger/console[m]
-        387     console[m] = (...args) => {
-      > 388       const captured = new Error();
-        389       const dataSnap = __TRACE.stack();
+  1. HomePage.tsx:224:21 → HomePage/pagedItems<
+        223       const allSorted = sortedIndices.map(index => filteredData.finalFiltered[index]);
+      > 224       debugSortOrder(allSorted);
+        225     }
+  2. debugSort.ts:4:24 → debugSortOrder
+        3   console.log("=== DEBUG SORT ORDER ===");
+      > 4   plugins.slice(0, 10).forEach((plugin, index) => {
+        5     const createdTimestamp = getPluginTimestamp(plugin, "created");
+  3. debugSort.ts:12:13 → debugSortOrder/<
+        11     console.log(`   Indexed_at: ${plugin.indexed_at}`);
+      > 12     console.log(`   Commits: ${plugin.commits ? "Available" : "N/A"}`);
+        13     console.log("---");
 
-Message Log: testvalue 
-Vars: 
-Object { options: {…} }
-​
-options: Object { debug: true, eruda: false, mockForMacOS: false }
+Message Log:    Commits: N/A
 ````
 
 ---
